@@ -12,7 +12,7 @@ const
   SErrorCommand = 'Неизвестная команда!';
   SErrorPasswd = 'Неверный пароль хоста!';
   SErrorServerInfo = 'Сервер не запущен!';
-  SErrorConnectInfo = 'Вы не присоеденены к серверу';
+  SErrorConnectInfo = 'Вы не присоеденены к серверу!';
 
   com_help = 'HELP';
   com_host = 'HOST';
