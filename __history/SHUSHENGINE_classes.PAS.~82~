@@ -1,0 +1,383 @@
+unit SHUSHENGINE_classes;
+interface
+{
+Copyright: ShushpancheakTeam
+All rights reserved
+}
+uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,mmsystem, Bass, GIFImg, SHUSHENGINE_consts,System.Win.ScktComp;
+
+type
+  TDirection = (up,down,left,right,up_right,down_right,down_left,up_left);
+  TFlags = TBits;
+  {
+    0 - chat
+  }
+
+  TGIF = class
+    path:string;
+  end;
+  TSprite = class
+    gif:array[0..7]of TGIF;      //всего max 8 напр, а так, возможно и 4, кароч     0 -  вверх и тд...
+    width,height:integer;
+    img:TImage;
+    active_gif:integer;
+    procedure assign_gif(path:string;num:integer);
+    procedure set_default();
+
+
+  end;
+  TGameObject = class
+    layer:word; //0 - Самый большой
+    x,y,wx,wy:integer;
+    hitbox_w,hitbox_h:integer;
+    allowed_directions: set of up..up_left;
+    direction: TDirection;
+    Sprite:TSprite;
+    procedure Set_default();
+    procedure Set_xy(nx,ny:integer);
+    procedure Set_wxy(nx,ny:integer);
+    procedure draw_sprite();
+  end;
+
+  TPlayer = class
+    public
+      name:string; //Почему бы и нет?
+  end;
+
+  TAudioControl = class
+    public
+      var
+        AudioStream:Array[0..9] of HStream; //с нуля
+      procedure Init(FormHandle:HWND);
+  end;
+
+  TConsole = class
+    showed:boolean;
+    procedure show(conMemo:TMemo);
+    procedure con_output(conmemo:TMemo;s:string);
+    procedure OnKeyDown(key:word;conMemo:TMemo);
+    procedure read_command(com:string;conMemo:TMemo);
+  end;
+
+  TGameControl = class
+    public
+      paused:boolean; //paused yknow
+      Audio_Control:TAudioControl;
+      World_width:integer;
+      World_height:integer;
+      console:TConsole;
+      flags: Tflags;
+    procedure pause(ms:integer); //пауза на n ms
+    procedure Init(flg:TFlags);
+    procedure SHowLogo;
+    procedure set_camera_xy(nx,ny:integer);
+    procedure onKeyDown(key:word;conMemo:TMemo);
+  end;
+  TServer = class
+    public
+      Host:TServerSocket;
+      Client:TClientSocket;
+    procedure start();
+    procedure connect(ip:string);
+  end;
+  TChat = class
+    public
+      chatMemo:TMemo;
+      chatSplit:TSplitter;
+      chatPanel:Tpanel;
+  end;
+
+var camera_x,camera_y:integer;
+    camera_width,camera_height:integer;
+    Server:TServer;
+    Chat:TChat;
+    Form:TWinControl;
+implementation
+procedure Error(s:string);
+begin
+  MessageBox(0,PChar(s),0,MB_ICONWARNING);
+end;
+function read_word(s:string;stop_char:char;ind:integer):string;
+var i:integer;
+begin
+  result:='';
+  i:=ind;
+  while (s[i] <> stop_char)and (i <= s.Length) do  begin
+    result:=result+s[i];
+    inc(i);
+  end;
+end;
+
+
+procedure TServer.start();
+begin
+  Server.Host:=TServerSOcket.Create(Form);
+  Server.Host.Open;
+end;
+procedure TServer.connect(ip:string);
+begin
+
+end;
+
+
+procedure TConsole.show(conMemo:TMemo);
+begin
+  if not showed then begin
+    conmemo.Left:=10;
+    conmemo.top:=0;
+    conmemo.Width:=600;
+    conmemo.Height:=400;
+    showed:=true;
+  end
+  else begin
+    conmemo.Left:=10;
+    conmemo.top:=-600;
+    conmemo.Width:=1;
+    conmemo.Height:=1;
+    showed:=false;
+  end;
+end;
+procedure TConsole.con_output(conmemo: TMemo;s:string);
+var i,curind,len:integer;
+begin
+  i:=conmemo.Lines.Count;
+  curind:=1;
+  len:=com_help_len+conmemo.Lines.Count-1;
+  while i <= len do  begin
+    conmemo.Lines.Add(read_word(s,'|',curind));
+    curind:=length(conmemo.Lines[conmemo.Lines.Count-1])+2;
+    inc(i);
+  end;
+end;
+procedure TConsole.read_command(com: string;conMemo:TMemo);
+var curind:integer;
+var comm:string;
+begin
+  curind:=1;
+  comm:=read_word(com,' ',curind);
+  curind:=length(comm)+2; //вместе с /|\ верхним
+  if comm = com_help then
+    if curind >= length(com) then con_output(conMemo,Scom_help) // больше нету параметров
+    else
+  else
+  if comm = com_host then begin
+    if curind >= length(com) then error(SErrorPasswd) // больше нету параметров
+    else begin
+      comm:=read_word(com,' ',curind);
+      if comm = Server_passwd then begin
+        con_output(conMemo,Scom_host1);
+        Server.start();
+        con_output(conMemo,Scom_host2);
+      end
+      else error(SErrorPasswd);
+    end
+  end
+  else
+  error(SErrorCommand);
+end;
+procedure TConsole.OnKeyDown(key: Word; conMemo: TMemo);
+begin
+
+    if (key=ord(key_open_con)) then
+      show(conMemo) else
+  if showed then begin
+    if key = 13 then
+      read_command(conmemo.Lines[conmemo.Lines.Count-1],conMemo) else
+    if key = ord('') then//backspace
+      conmemo.lines[conmemo.Lines.Count-1]:='' else
+    conmemo.Text:=conmemo.Text+chr(key);
+  end;
+end;
+
+
+procedure TGameControl.pause(ms:integer);
+var wtim:ttime;
+begin
+  paused:=true;
+  wtim:=encodetime(0,0,ms div 1000,ms mod 1000)+time;
+  while (time<=wtim)and paused do
+      application.processmessages;
+  paused:=false;
+end;
+procedure TGameControl.showlogo;
+begin
+
+end;
+procedure TGameControl.Init(flg:TFlags);   //default значения
+begin
+  showlogo;
+  camera_x:=Def_camera_x;
+  camera_y:=Def_camera_y;
+  camera_width:=Def_camera_width;
+  camera_height:=Def_camera_height;
+
+  flags:=flg;
+
+  if flg.Bits[0] then begin
+    chat:=TChat.Create;
+    chat.chatpanel:=TPanel.Create(form);
+    chat.chatPanel.Parent:=form;
+    chat.chatPanel.Align:=TAlign.alRight;
+
+    Chat.chatMemo:=Tmemo.Create(chat.chatPanel);
+    chat.chatMemo.Parent:=chat.chatPanel;
+    chat.chatMemo.ReadOnly:=true;
+    chat.chatMemo.Height:=400;
+    chat.chatMemo.Align:=altop;
+
+    chat.chatSplit:=TSplitter.Create(form);
+
+  end;
+
+  console:=TConsole.Create;
+  console.showed:=false;
+
+  Server:=TServer.Create;
+
+  World_width:=Def_World_width;
+  world_height:=Def_World_height;
+end;
+procedure TGameControl.set_camera_xy(nx,ny:integer);
+begin
+  camera_x:=nx;
+  camera_y:=ny;
+end;
+
+procedure TAudioControl.Init(FormHandle:HWND);       //Нужно ввести form{n}.handle
+begin
+	if (HIWORD(BASS_GetVersion) <> BASSVERSION) then
+	begin
+		MessageBox(0,SError_BASS1,0,MB_ICONERROR);
+		Halt;
+	end;
+
+  if not BASS_Init(-1, 44100, 0,FormHandle, nil) then begin
+    Error(SError_BASS2);
+    Exit;
+  end;
+end;
+
+procedure TSprite.assign_gif(path: string;num:integer);
+begin
+  gif[num].path:=path;
+end;
+
+procedure TGameObject.draw_sprite();
+var TMP_Gif:TGifImage;
+var gifnum:integer;
+begin
+    case direction of
+      up:        gifnum:=0 ;
+      down:      gifnum:=4 ;
+      left:      gifnum:=6 ;
+      right:     gifnum:=2 ;
+      up_right:  gifnum:=1 ;
+      down_right:gifnum:=3 ;
+      down_left: gifnum:=5 ;
+      up_left:   gifnum:=7 ;
+    end;
+    if sprite.active_gif <> gifnum then begin
+
+      sprite.active_gif:=gifnum;
+      TMP_Gif:=TGifImage.Create;
+      try
+        TMP_Gif.LoadFromFile(sprite.gif[gifnum].path);
+      except
+        error(SError_Sprite1+' '+sprite.gif[gifnum].path);
+      end;
+      TMP_Gif.Width:=sprite.width;
+      TMP_Gif.height:=sprite.height;
+      TMP_Gif.Transparent:=true;
+
+      TMP_Gif.Animate := True;
+      TMP_Gif.AnimateLoop := glEnabled;
+
+
+      sprite.img.picture.Assign(TMP_gif);
+
+      TMP_Gif.Free;
+    end;
+end;
+procedure TSprite.set_default;
+var
+  i: Integer;
+begin
+  for i := 0 to 7 do
+    gif[i]:=TGIF.Create;
+  width:=Default_Sprite_width;
+  height:=Default_Sprite_height;
+
+  active_gif:=-1;
+  assign_gif('bullet.gif',0);
+end;
+procedure TGameObject.Set_default;
+begin
+  Sprite:=TSprite.Create;
+  Sprite.set_default;
+  x:=50;
+  y:=50;
+  layer:=0;
+  allowed_directions:=[up];
+  direction:=up;
+  hitbox_w:=Sprite.width;
+  hitbox_h:=Sprite.height;
+end;
+procedure TGAmeObject.Set_wxy(nx: Integer; ny: Integer);
+begin
+  wx:=nx;
+  wy:=ny;
+  sprite.img.Left:=wx-camera_x+camera_width div 2;
+  sprite.img.top:=wy-camera_y+camera_height div 2;
+end;
+procedure TGAmeObject.Set_xy(nx: Integer; ny: Integer);
+begin
+  if nx = x then
+    if ny > y then
+      if down in allowed_directions then direction:=down
+      else
+    else
+    if ny < y then
+      if up in allowed_directions then direction:=up
+      else
+    else
+  else
+  if ny = y then
+    if nx > x then
+      if right in allowed_directions then direction:=right
+      else
+    else
+    if nx < x then
+      if left in allowed_directions then direction:=left
+      else
+    else
+  else
+  if nx > x then
+    if ny > y then
+      if down_right in allowed_directions then direction:=down_right
+      else
+    else
+    if ny < y then
+      if up_right in allowed_directions then direction:=up_right
+      else
+    else
+  else
+  if nx < x then
+    if ny > y then
+      if down_left in allowed_directions then direction:=down_left
+      else
+    else
+    if ny < y then
+      if up_left in allowed_directions then direction:=up_left;
+  x:=nx;
+  y:=ny;
+  set_wxy(x,y);
+end;
+procedure TGameCOntrol.onKeyDown(key:word;conMemo:TMemo);
+begin
+  if (key=ord(key_open_con)) then
+    console.show(conMemo);
+
+end;
+
+end.

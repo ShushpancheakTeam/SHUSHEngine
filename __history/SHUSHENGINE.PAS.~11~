@@ -1,0 +1,75 @@
+unit SHUSHENGINE;
+interface
+
+uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, mmsystem, Bass;
+
+type
+  TSprite = class
+    btm:array[0..9]of TBitMap;
+
+  end;
+  TGameObject = class
+    layer:word; //0 - Самый большой
+  end;
+
+  TPlayer = class
+    public
+      name:string; //Почему бы и нет?
+  end;
+
+  TAudioControl = class
+    public
+      var
+        AudioStream:Array[0..9] of HStream; //с нуля
+      procedure Init(FormHandle:HWND);
+  end;
+
+  TGameControl = class
+    public
+      paused:boolean; //paused yknow
+    procedure pause(ms:integer); //пауза на n ms
+    procedure Init;
+    procedure SHowLogo;
+  end;
+
+
+implementation
+procedure Error(s:string);
+begin
+  MessageBox(0,PChar(s),0,MB_ICONERROR);
+end;
+procedure TGameControl.pause(ms:integer);
+var wtim:ttime;
+begin
+  paused:=true;
+  wtim:=encodetime(0,0,ms div 1000,ms mod 1000)+time;
+  while (time<=wtim)and paused do
+      application.processmessages;
+  paused:=false;
+end;
+procedure TGameControl.showlogo;
+begin
+
+end;
+procedure TGameControl.Init;   //default значения
+begin
+  pause(1001);
+  error('Ой, все крашнулось!');
+  showlogo;
+end;
+procedure TAudioControl.Init(FormHandle:HWND);       //Нужно ввести form{n}.handle
+begin
+	if (HIWORD(BASS_GetVersion) <> BASSVERSION) then
+	begin
+		MessageBox(0,'Библиотека BASS, кажется, потерпела фиаско, а именно, он стал немного пристарелым',0,MB_ICONERROR);
+		Halt;
+	end;
+
+  if not BASS_Init(-1, 44100, 0,FormHandle, nil) then begin
+    Error('Библиотека BASS, кажется, потерпела фиаско в плане инициализации');
+    Exit;
+  end;
+end;
+
+end.

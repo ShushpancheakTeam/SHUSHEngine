@@ -1,0 +1,42 @@
+unit SHUSHENGINE_consts;
+
+interface
+uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, mmsystem, GIFImg, Bass;
+const
+  SError_BASS1 = 'Библиотека BASS, кажется, потерпела фиаско, а именно, он стал немного пристарелым';
+  SError_BASS2 = 'Библиотека BASS, кажется, потерпела фиаско в плане инициализации';
+  SError_Sprite1 = 'Нету такого гифа!';
+
+  com_help = 'help';
+
+  Scom_Help = 'Hello!|You are kek';
+
+  com_help_len = 2; //изменять по мере обновления helpa
+
+  Default_Sprite_width = 64;
+  Default_Sprite_height = 64;
+
+  Def_World_width = 1000;
+  Def_World_height = 1000;
+
+  Def_camera_x = 50;
+  Def_camera_y = 50;
+  Def_camera_width = 100;
+  Def_camera_height = 100;
+
+  Def_flags_size = 10;
+
+  key_open_con1 = '`';
+  key_open_con2 = 'ё';
+  key_open_con3 = '~';
+  key_open_con4 = 'Ё';
+
+  Server_Passwd = '5310087';
+
+
+
+
+implementation
+
+end.

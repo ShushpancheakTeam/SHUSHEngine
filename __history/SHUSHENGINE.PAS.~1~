@@ -1,0 +1,14 @@
+unit SHUSHENGINE;
+interface
+
+uses Bass;
+
+type
+  TGameControl = class
+    public
+
+  end;
+
+implementation
+
+end.

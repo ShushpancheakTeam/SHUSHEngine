@@ -1,0 +1,17 @@
+unit SHUSHENGINE_consts;
+
+interface
+uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, mmsystem, GIFImg, Bass;
+const
+  SError_BASS1 = 'Библиотека BASS, кажется, потерпела фиаско, а именно, он стал немного пристарелым';
+  SError_BASS2 = 'Библиотека BASS, кажется, потерпела фиаско в плане инициализации';
+  SError_Sprite1 = 'Нету такого гифа!';
+
+  Default_Sprite_width = 64;
+  Default_Sprite_height = 64;
+
+
+implementation
+
+end.
