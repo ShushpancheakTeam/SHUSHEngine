@@ -76,12 +76,11 @@ type
   end;
   TServer = class
     public
-      Host:TServerSocket;
-      Client:TClientSocket;
       hoc:TServerValues; //host or client?
-    procedure start();
-    procedure stop(); // то и то можна
-    procedure connect(ip:string);
+    procedure start(Host:TServerSocket);
+    procedure stop_host(Host:TServerSocket);
+    procedure stop_connection(client:TClientSocket);
+    procedure connect(client:TClientSocket;ip:string);
   end;
   TChat = class
     public
@@ -123,26 +122,35 @@ begin
   end;
 end;
 
-
-procedure TServer.stop();
+procedure Tserver.stop_host(Host:TServerSocket);
 begin
-  Server.Host:=TServerSOcket.Create(Form);
-  Server.Host.Open;
-  hoc:=host;
+  hoc:=NaN;
+  host.Close;
 end;
-procedure TServer.start();
+procedure Tserver.stop_connection(client:TClientSocket);
 begin
-  Server.Host:=TServerSOcket.Create(Form);
-  Server.Host.Open;
-  hoc:=host;
+  hoc:=NaN;
+  client.Close;
 end;
-procedure TServer.connect(ip:string);
+procedure TServer.start(Host:TServerSocket);
 begin
-  hoc:=client; //client;
-  Server.Client:=Tclientsocket.Create(Form);
-  server.client.port:=Server_port;
-  server.Client.Host:=ip;
-  server.Client.Open;
+  if hoc = NaN then    begin
+    Host.Open;
+    hoc:=host;
+  end
+  else if hoc = client then error(SErrorserveralc)
+  else error(SErrorserveral);
+end;
+procedure TServer.connect(client:TClientSocket;ip:string);
+begin
+  if hoc = NaN then    begin
+    hoc:=client; //client;
+    client.port:=Server_port;
+    Client.Address:=ip;
+    Client.Open;
+  end
+  else if hoc = host then error(SErrorConnectalh)
+  else error(SErrorConnectal);
 end;
 
 

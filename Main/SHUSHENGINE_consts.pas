@@ -12,7 +12,11 @@ const
   SErrorCommand = 'Неизвестная команда!';
   SErrorPasswd = 'Неверный пароль хоста!';
   SErrorServerInfo = 'Сервер не запущен!';
+  SErrorServeral = 'Вы уже являетесь хостом!';       //already
+  SErrorServeralc = 'Вы подключены к другому серверу, отключитесь!';       //connect
   SErrorConnectInfo = 'Вы не присоеденены к серверу!';
+  SErrorConnectal = 'Вы уже присоеденены к серверу!';       //already
+  SErrorConnectalh = 'Вы уже являетесь хостом! Остановите сервер!';       //host
 
   com_help = 'HELP';
   com_host = 'HOST';
