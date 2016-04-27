@@ -22,11 +22,14 @@ const
   com_help = 'HELP';
   com_host = 'HOST';
   com_connect = 'CONNECT';
+  com_clear = 'CLEAR';
   com_help_len = 2; //изменять по мере обновления helpa
 
   Scom_Help = 'Hello!|No help for you'+senter;
   Scom_Host1 = 'Пароль действителен, сервер запускается...';
   Scom_Host2 = 'Сервер запущен';
+  Scom_connect1 = 'Пароль действителен, сервер запускается...';
+  Scom_connect2 = 'Сервер запущен';
   Scom_ServerInfo = 'Информация о запущенном сервере:';
 
   Server_port = 1337;
@@ -45,6 +48,8 @@ const
   Def_flags_size = 10;
 
   key_open_con = 'À';
+
+  uppcaseletters = ['A'..'Z'];
 
   Server_Passwd = '5310087';
 

@@ -13,7 +13,8 @@ type
   {
     0 - chat
   }
-  TServerValues  = (host,client,NaN) ;
+  TServerValues  = (sv_host,sv_client,sv_NaN) ;
+  TConsoleClear = (cl_lline,cl_all,cl_char);
 
   TGIF = class
     path:string;
@@ -77,10 +78,10 @@ type
   TServer = class
     public
       hoc:TServerValues; //host or client?
-    procedure start(Host:TServerSocket);
-    procedure stop_host(Host:TServerSocket);
-    procedure stop_connection(client:TClientSocket);
-    procedure connect(client:TClientSocket;ip:string);
+    procedure start();
+    procedure stop_host();
+    procedure stop_connection();
+    procedure connect(ip:string);
   end;
   TChat = class
     public
@@ -92,8 +93,8 @@ type
 var camera_x,camera_y:integer;
     camera_width,camera_height:integer;
     Server:TServer;
-    Server_host:TServerSocket;
-    Server_client:TClientSocket;
+    host:TServerSocket;
+    client:TClientSocket;
     Chat:TChat;
     Form:TWinControl;
 
@@ -128,36 +129,42 @@ begin
     inc(i);
   end;
 end;
-
-
-procedure Tserver.stop_host(Host:TServerSocket);
+procedure console_clear(conmemo:TMemo;cl:TConsoleClear);
 begin
-  hoc:=NaN;
+  if cl = cl_lline then conmemo.lines[conmemo.Lines.Count-1].Remove(1);
+  if cl = cl_all then conmemo.lines.Clear;
+  if cl = cl_char then conmemo.lines[conmemo.Lines.Count-1].Remove(conmemo.lines[conmemo.Lines.Count-1].length-1);
+end;
+
+
+procedure Tserver.stop_host();
+begin
+  hoc:=sv_NaN;
   host.Close;
 end;
-procedure Tserver.stop_connection(client:TClientSocket);
+procedure Tserver.stop_connection();
 begin
-  hoc:=NaN;
+  hoc:=sv_NaN;
   client.Close;
 end;
-procedure TServer.start(Host:TServerSocket);
+procedure TServer.start();
 begin
-  if hoc = NaN then    begin
+  if hoc = sv_NaN then    begin
     Host.Open;
-    hoc:=host;
+    hoc:=sv_host;
   end
-  else if hoc = client then error(SErrorserveralc)
+  else if hoc = sv_client then error(SErrorserveralc)
   else error(SErrorserveral);
 end;
-procedure TServer.connect(client:TClientSocket;ip:string);
+procedure TServer.connect(ip:string);
 begin
-  if hoc = NaN then    begin
-    hoc:=client; //client;
+  if hoc = sv_NaN then    begin
+    hoc:=sv_client; //client;
     client.port:=Server_port;
     Client.Address:=ip;
     Client.Open;
   end
-  else if hoc = host then error(SErrorConnectalh)
+  else if hoc = sv_host then error(SErrorConnectalh)
   else error(SErrorConnectal);
 end;
 
@@ -199,17 +206,20 @@ begin
         console_output(conMemo,Scom_host2);
       end
       else error(SErrorPasswd);
-
   end
   else
   if comm = com_connect then begin
     if curind >= length(com) then error(SErrorConnectIp) // больше нету параметров
     else begin
       comm:=read_word(com,' ',curind);
-      console_output(conMemo,Scom_host1);
-      Server.start();
-      console_output(conMemo,Scom_host2);
+      console_output(conMemo,Scom_connect1);
+      Server.connect(comm);
+      console_output(conMemo,Scom_connect2);
     end
+  end
+  else
+  if comm = com_clear then begin
+    console_clear(conmemo,cl_all);
   end
   else
   error(SErrorCommand);
@@ -217,14 +227,21 @@ end;
 procedure TConsole.OnKeyDown(key: Word; conMemo: TMemo);
 begin
 
-    if (key=ord(key_open_con)) then
+  if (key=ord(key_open_con)) then
       show(conMemo) else
   if showed then begin
-    if key = 13 then
-      read_command(conmemo.Lines[conmemo.Lines.Count-1],conMemo) else
+    if key = 13 then begin
+      read_command(conmemo.Lines[conmemo.Lines.Count-1],conMemo);
+      console_clear(conmemo,cl_lline);          // last line
+    end
+    else
     if key = ord('') then//backspace
-      conmemo.lines[conmemo.Lines.Count-1]:='' else
-    conmemo.Text:=conmemo.Text+chr(key);
+      console_clear(conmemo,cl_char)
+    else
+    if chr(key) = '▼' then
+      conmemo.Text:=conmemo.Text+'.'
+    else
+    if chr(key) in uppcaseletters then conmemo.Text:=conmemo.Text+chr(key);
   end;
 end;
 
@@ -275,7 +292,7 @@ begin
   console.showed:=false;
 
   Server:=TServer.Create;
-  server.hoc:=NaN;  //Еще серва нету
+  server.hoc:=sv_NaN;  //Еще серва нету
 
   World_width:=Def_World_width;
   world_height:=Def_World_height;

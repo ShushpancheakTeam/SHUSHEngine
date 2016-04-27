@@ -45,13 +45,13 @@ object Form1: TForm1
     ClientType = ctNonBlocking
     Port = 0
     Left = 728
-    Top = 112
+    Top = 56
   end
   object ServerSocket1: TServerSocket
     Active = False
     Port = 0
     ServerType = stNonBlocking
     Left = 728
-    Top = 152
+    Top = 88
   end
 end

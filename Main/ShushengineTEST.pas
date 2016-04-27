@@ -40,7 +40,9 @@ end;                                                                         ///
 procedure Initialization_shush();                                            ///
 begin                                                                        ///
   testobject.Sprite.img:=TImage.Create(Form1);                               ///
-  shush1(testobject.Sprite.img);                                             ///
+  shush1(testobject.Sprite.img);
+
+  Form:=Form1;                                       ///
 end;                                                                         ///
 ///////////////////////////////////////SHUSH_STUFF//////////////////////////////
 procedure TForm1.conMemoKeyDown(Sender: TObject; var Key: Word;
@@ -53,6 +55,13 @@ procedure TForm1.FormCreate(Sender: TObject);
 var tmpflags:TFlags;
 begin
   Game_control:=TGameControl.create;
+
+  TestObject:=TGameObject.Create;
+  TestObject.Set_default;
+
+  Initialization_shush();
+
+
   tmpflags:=Tflags.create;
 
   tmpflags.size:=Def_flags_size;
@@ -61,9 +70,8 @@ begin
 
   Game_control.init(tmpflags);
   Game_control.Audio_Control.init(Form1.Handle);
-  TestObject:=TGameObject.Create;
-  TestObject.Set_default;
-  Initialization_shush();
+  
+
   Timer1.Enabled:=true;
 end;
 
