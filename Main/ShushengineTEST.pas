@@ -11,6 +11,8 @@ type
   TForm1 = class(TForm)
     Timer1: TTimer;
     conMemo: TMemo;
+    ClientSocket1: TClientSocket;
+    ServerSocket1: TServerSocket;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);

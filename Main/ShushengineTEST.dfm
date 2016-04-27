@@ -40,4 +40,18 @@ object Form1: TForm1
     Left = 728
     Top = 8
   end
+  object ClientSocket1: TClientSocket
+    Active = False
+    ClientType = ctNonBlocking
+    Port = 0
+    Left = 728
+    Top = 112
+  end
+  object ServerSocket1: TServerSocket
+    Active = False
+    Port = 0
+    ServerType = stNonBlocking
+    Left = 728
+    Top = 152
+  end
 end

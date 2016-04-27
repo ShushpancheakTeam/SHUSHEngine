@@ -1,4 +1,4 @@
-unit SHUSHENGINE_classes;
+п»їunit SHUSHENGINE_classes;
 interface
 {
 Copyright: ShushpancheakTeam
@@ -19,7 +19,7 @@ type
     path:string;
   end;
   TSprite = class
-    gif:array[0..7]of TGIF;      //всего max 8 напр, а так, возможно и 4, кароч     0 -  вверх и тд...
+    gif:array[0..7]of TGIF;      //РІСЃРµРіРѕ max 8 РЅР°РїСЂ, Р° С‚Р°Рє, РІРѕР·РјРѕР¶РЅРѕ Рё 4, РєР°СЂРѕС‡     0 -  РІРІРµСЂС… Рё С‚Рґ...
     width,height:integer;
     img:TImage;
     active_gif:integer;
@@ -29,7 +29,7 @@ type
 
   end;
   TGameObject = class
-    layer:word; //0 - Самый большой
+    layer:word; //0 - РЎР°РјС‹Р№ Р±РѕР»СЊС€РѕР№
     x,y,wx,wy:integer;
     hitbox_w,hitbox_h:integer;
     allowed_directions: set of up..up_left;
@@ -43,13 +43,13 @@ type
 
   TPlayer = class
     public
-      name:string; //Почему бы и нет?
+      name:string; //РџРѕС‡РµРјСѓ Р±С‹ Рё РЅРµС‚?
   end;
 
   TAudioControl = class
     public
       var
-        AudioStream:Array[0..9] of HStream; //с нуля
+        AudioStream:Array[0..9] of HStream; //СЃ РЅСѓР»СЏ
       procedure Init(FormHandle:HWND);
   end;
 
@@ -68,7 +68,7 @@ type
       World_height:integer;
       console:TConsole;
       flags: Tflags;
-    procedure pause(ms:integer); //пауза на n ms
+    procedure pause(ms:integer); //РїР°СѓР·Р° РЅР° n ms
     procedure Init(flg:TFlags);
     procedure SHowLogo;
     procedure set_camera_xy(nx,ny:integer);
@@ -92,8 +92,15 @@ type
 var camera_x,camera_y:integer;
     camera_width,camera_height:integer;
     Server:TServer;
+    Server_host:TServerSocket;
+    Server_client:TClientSocket;
     Chat:TChat;
     Form:TWinControl;
+
+
+
+
+{в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€в–€ }
 implementation
 procedure Error(s:string);
 begin
@@ -121,6 +128,7 @@ begin
     inc(i);
   end;
 end;
+
 
 procedure Tserver.stop_host(Host:TServerSocket);
 begin
@@ -154,6 +162,7 @@ begin
 end;
 
 
+
 procedure TConsole.show(conMemo:TMemo);
 begin
   if not showed then begin
@@ -177,14 +186,12 @@ var comm:string;
 begin
   curind:=1;
   comm:=read_word(com,' ',curind);
-  curind:=length(comm)+2; //вместе с /|\ верхним
-  if comm = com_help then
-    if curind >= length(com) then console_output(conMemo,Scom_help) // больше нету параметров
+  curind:=length(comm)+2; //РІРјРµСЃС‚Рµ СЃ /|\ РІРµСЂС…РЅРёРј
+  if comm = com_help then                    //case nelzya
+    if curind >= length(com) then console_output(conMemo,Scom_help) // Р±РѕР»СЊС€Рµ РЅРµС‚Сѓ РїР°СЂР°РјРµС‚СЂРѕРІ
     else
   else
   if comm = com_host then begin
-    if curind >= length(com) then error(SErrorPasswd) // больше нету параметров
-    else begin
       comm:=read_word(com,' ',curind);
       if comm = Server_passwd then begin
         console_output(conMemo,Scom_host1);
@@ -192,6 +199,16 @@ begin
         console_output(conMemo,Scom_host2);
       end
       else error(SErrorPasswd);
+
+  end
+  else
+  if comm = com_connect then begin
+    if curind >= length(com) then error(SErrorConnectIp) // Р±РѕР»СЊС€Рµ РЅРµС‚Сѓ РїР°СЂР°РјРµС‚СЂРѕРІ
+    else begin
+      comm:=read_word(com,' ',curind);
+      console_output(conMemo,Scom_host1);
+      Server.start();
+      console_output(conMemo,Scom_host2);
     end
   end
   else
@@ -225,7 +242,7 @@ procedure TGameControl.showlogo;
 begin
 
 end;
-procedure TGameControl.Init(flg:TFlags);   //default значения
+procedure TGameControl.Init(flg:TFlags);   //default Р·РЅР°С‡РµРЅРёСЏ
 begin
   showlogo;
   camera_x:=Def_camera_x;
@@ -258,7 +275,7 @@ begin
   console.showed:=false;
 
   Server:=TServer.Create;
-  server.hoc:=NaN;  //Еще серва нету
+  server.hoc:=NaN;  //Р•С‰Рµ СЃРµСЂРІР° РЅРµС‚Сѓ
 
   World_width:=Def_World_width;
   world_height:=Def_World_height;
@@ -269,7 +286,7 @@ begin
   camera_y:=ny;
 end;
 
-procedure TAudioControl.Init(FormHandle:HWND);       //Нужно ввести form{n}.handle
+procedure TAudioControl.Init(FormHandle:HWND);       //РќСѓР¶РЅРѕ РІРІРµСЃС‚Рё form{n}.handle
 begin
 	if (HIWORD(BASS_GetVersion) <> BASSVERSION) then
 	begin

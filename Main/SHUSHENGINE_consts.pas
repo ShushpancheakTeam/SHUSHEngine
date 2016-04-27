@@ -11,6 +11,7 @@ const
   SError_Sprite1 = 'Нету такого гифа!';
   SErrorCommand = 'Неизвестная команда!';
   SErrorPasswd = 'Неверный пароль хоста!';
+  SErrorConnectIp = 'Укажите IP!';
   SErrorServerInfo = 'Сервер не запущен!';
   SErrorServeral = 'Вы уже являетесь хостом!';       //already
   SErrorServeralc = 'Вы подключены к другому серверу, отключитесь!';       //connect
@@ -20,6 +21,7 @@ const
 
   com_help = 'HELP';
   com_host = 'HOST';
+  com_connect = 'CONNECT';
   com_help_len = 2; //изменять по мере обновления helpa
 
   Scom_Help = 'Hello!|No help for you'+senter;
