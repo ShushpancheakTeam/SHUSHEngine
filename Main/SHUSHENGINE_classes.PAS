@@ -130,10 +130,21 @@ begin
   end;
 end;
 procedure console_clear(conmemo:TMemo;cl:TConsoleClear);
+var tmptxt:string;
+    i:integer;
 begin
-  if cl = cl_lline then conmemo.lines[conmemo.Lines.Count-1].Remove(1);
+  tmptxt:=string(conmemo.Text);
+  if cl = cl_lline then begin
+    i:=0;
+    while i < conmemo.Lines.Count-2 do  begin
+      tmptxt:=tmptxt.Remove(1,pos(SEnter,tmptxt));
+      inc(i);
+    end;
+
+    conmemo.Text:=tmptxt.remove(pos(SEnter,tmptxt));
+  end;
   if cl = cl_all then conmemo.lines.Clear;
-  if cl = cl_char then conmemo.lines[conmemo.Lines.Count-1].Remove(conmemo.lines[conmemo.Lines.Count-1].length-1);
+  if cl = cl_char then conmemo.text:=tmptxt.Remove(length(tmptxt)-1);
 end;
 
 
@@ -221,8 +232,10 @@ begin
   if comm = com_clear then begin
     console_clear(conmemo,cl_all);
   end
-  else
-  error(SErrorCommand);
+  else begin
+    error(SErrorCommand);
+    console_clear(conmemo,cl_lline);
+  end;
 end;
 procedure TConsole.OnKeyDown(key: Word; conMemo: TMemo);
 begin
@@ -232,7 +245,6 @@ begin
   if showed then begin
     if key = 13 then begin
       read_command(conmemo.Lines[conmemo.Lines.Count-1],conMemo);
-      console_clear(conmemo,cl_lline);          // last line
     end
     else
     if key = ord('') then//backspace
