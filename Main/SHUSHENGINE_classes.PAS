@@ -29,7 +29,7 @@ type
 
 
   end;
-  TGameObject = class
+  TGameObject = class                   //основные параметры всех объектов в мире. можно добавлять свои
     layer:word; //0 - Самый большой
     x,y,wx,wy:integer;
     hitbox_w,hitbox_h:integer;
@@ -130,21 +130,23 @@ begin
   end;
 end;
 procedure console_clear(conmemo:TMemo;cl:TConsoleClear);
-var tmptxt:string;
+var tmptxt,tmptxt2:string;
     i:integer;
 begin
   tmptxt:=string(conmemo.Text);
   if cl = cl_lline then begin
     i:=0;
+    tmptxt2:=tmptxt;
     while i < conmemo.Lines.Count-2 do  begin
       tmptxt:=tmptxt.Remove(1,pos(SEnter,tmptxt));
       inc(i);
     end;
-
-    conmemo.Text:=tmptxt.remove(pos(SEnter,tmptxt));
+    conmemo.Text:=tmptxt2.remove(pos(SEnter,tmptxt));
   end;
   if cl = cl_all then conmemo.lines.Clear;
-  if cl = cl_char then conmemo.text:=tmptxt.Remove(length(tmptxt)-1);
+  if cl = cl_char then begin
+    if conmemo.Lines[conmemo.Lines.Count] <> #10 then conmemo.text:=tmptxt.Remove(length(tmptxt)-1);     //за строку не выходить
+  end;
 end;
 
 
