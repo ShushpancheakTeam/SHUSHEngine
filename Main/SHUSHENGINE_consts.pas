@@ -10,7 +10,6 @@ const
   SError_BASS2 = 'Библиотека BASS, кажется, потерпела фиаско в плане инициализации';
   SError_Sprite1 = 'Нету такого гифа!';
   SErrorCommand = 'Неизвестная команда!';
-  SErrorPasswd = 'Неверный пароль хоста!';
   SErrorConnectIp = 'Укажите IP!';
   SErrorServerInfo = 'Сервер не запущен!';
   SErrorServeral = 'Вы уже являетесь хостом!';       //already
@@ -23,10 +22,11 @@ const
   com_host = 'HOST';
   com_connect = 'CONNECT';
   com_clear = 'CLEAR';
+  com_server_info = 'S_INFO';
   com_help_len = 2; //изменять по мере обновления helpa
 
   Scom_Help = 'Hello!|No help for you'+senter;
-  Scom_Host1 = 'Пароль действителен, сервер запускается...';
+  Scom_Host1 = 'Сервер запускается...';
   Scom_Host2 = 'Сервер запущен';
   Scom_connect1 = 'Пароль действителен, сервер запускается...';
   Scom_connect2 = 'Сервер запущен';
@@ -49,9 +49,7 @@ const
 
   key_open_con = 'À';
 
-  uppcaseletters = ['A'..'Z'];
-
-  Server_Passwd = '5310087';
+  console_letters = ['A'..'Z','0','1'..'9',' ','_'];
 
 
 

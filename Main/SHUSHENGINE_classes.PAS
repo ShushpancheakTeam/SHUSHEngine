@@ -130,22 +130,19 @@ begin
   end;
 end;
 procedure console_clear(conmemo:TMemo;cl:TConsoleClear);
-var tmptxt,tmptxt2:string;
+var tmptxt:string;
     i:integer;
 begin
   tmptxt:=string(conmemo.Text);
   if cl = cl_lline then begin
-    i:=0;
-    tmptxt2:=tmptxt;
-    while i < conmemo.Lines.Count-2 do  begin
-      tmptxt:=tmptxt.Remove(1,pos(SEnter,tmptxt));
-      inc(i);
+    while tmptxt[length(tmptxt)] <> #10 do  begin
+      tmptxt:=tmptxt.Remove(length(tmptxt)-1);
     end;
-    conmemo.Text:=tmptxt2.remove(pos(SEnter,tmptxt));
+    conmemo.Text:=tmptxt;
   end;
   if cl = cl_all then conmemo.lines.Clear;
   if cl = cl_char then begin
-    if conmemo.Lines[conmemo.Lines.Count] <> #10 then conmemo.text:=tmptxt.Remove(length(tmptxt)-1);     //за строку не выходить
+    if tmptxt[length(tmptxt)] <> #10 then conmemo.text:=tmptxt.Remove(length(tmptxt)-1);     //за строку не выходить
   end;
 end;
 
@@ -212,13 +209,9 @@ begin
     else
   else
   if comm = com_host then begin
-      comm:=read_word(com,' ',curind);
-      if comm = Server_passwd then begin
         console_output(conMemo,Scom_host1);
         Server.start();
         console_output(conMemo,Scom_host2);
-      end
-      else error(SErrorPasswd);
   end
   else
   if comm = com_connect then begin
@@ -255,7 +248,7 @@ begin
     if chr(key) = '▼' then
       conmemo.Text:=conmemo.Text+'.'
     else
-    if chr(key) in uppcaseletters then conmemo.Text:=conmemo.Text+chr(key);
+    if chr(key) in console_letters then conmemo.Text:=conmemo.Text+chr(key);
   end;
 end;
 

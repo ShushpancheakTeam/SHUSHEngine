@@ -43,6 +43,8 @@ begin                                                                        ///
   shush1(testobject.Sprite.img);
 
   Form:=Form1;                                       ///
+  HOST:=form1.serversocket1;
+  CLIENT:=form1.ClientSocket1;
 end;                                                                         ///
 ///////////////////////////////////////SHUSH_STUFF//////////////////////////////
 procedure TForm1.conMemoKeyDown(Sender: TObject; var Key: Word;
@@ -70,7 +72,7 @@ begin
 
   Game_control.init(tmpflags);
   Game_control.Audio_Control.init(Form1.Handle);
-  
+
 
   Timer1.Enabled:=true;
 end;
