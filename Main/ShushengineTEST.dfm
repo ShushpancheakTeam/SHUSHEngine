@@ -21,10 +21,10 @@ object Form1: TForm1
     Width = 57
     Height = 289
     Color = clBlack
-    Font.Charset = OEM_CHARSET
+    Font.Charset = RUSSIAN_CHARSET
     Font.Color = clLime
-    Font.Height = -19
-    Font.Name = 'Terminal'
+    Font.Height = -20
+    Font.Name = 'Courier'
     Font.Style = []
     Lines.Strings = (
       '')

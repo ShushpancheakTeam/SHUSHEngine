@@ -23,14 +23,18 @@ const
   com_connect = 'CONNECT';
   com_clear = 'CLEAR';
   com_server_info = 'S_INFO';
-  com_help_len = 2; //изменять по мере обновления helpa
 
-  Scom_Help = 'Hello!|No help for you'+senter;
-  Scom_Host1 = 'Сервер запускается...';
-  Scom_Host2 = 'Сервер запущен';
-  Scom_connect1 = 'Пароль действителен, сервер запускается...';
-  Scom_connect2 = 'Сервер запущен';
-  Scom_ServerInfo = 'Информация о запущенном сервере:';
+  def_SSeparator = '|';
+  ds = def_SSeparator;  //тоже самое
+
+  Scom_Help = ds+ds+'--==THE HELP==--'+ds+ds+'Hello!'+ds+'No help for you'+ds+'NYEHEHEHE'+ds+ds+'--==THE HELP ENDING==--'+ds+ds;
+  Scom_Host1 = ds+'Сервер запускается...'+ds+ds;
+  Scom_Host2 = ds+'Сервер запущен'+ds+ds;
+  Scom_connect1 = ds+'Подключаемся к серверу...'+ds+ds;
+  Scom_connect2 = ds+'Сервер запущен'+ds+ds;
+  Scom_ServerInfo = ds+'Информация о запущенном сервере:'+ds+ds;
+
+
 
   Server_port = 1337;
 

@@ -87,7 +87,10 @@ type
     public
       chatMemo:TMemo;
       chatSplit:TSplitter;
+      chatSplit2:TSplitter;
       chatPanel:Tpanel;
+      inputPanel:TPAnel;
+      input:TEdit;
   end;
 
 var camera_x,camera_y:integer;
@@ -107,6 +110,7 @@ procedure Error(s:string);
 begin
   MessageBox(0,PChar(s),0,MB_ICONWARNING);
 end;
+
 function read_word(s:string;stop_char:char;ind:integer):string;
 var i:integer;
 begin
@@ -117,18 +121,19 @@ begin
     inc(i);
   end;
 end;
+
 procedure console_output(conMemo:TMemo;s:String);
-var i,curind,len:integer;
+var i:integer;
 begin
-  i:=conmemo.Lines.Count;
-  curind:=1;
-  len:=com_help_len+conmemo.Lines.Count-1;
-  while i <= len do  begin
-    conmemo.Lines.Add(read_word(s,'|',curind));
-    curind:=length(conmemo.Lines[conmemo.Lines.Count-1])+2;
+  i:=1;
+
+  while i <= length(s) do  begin
+    if s[i] <> def_SSeparator then conmemo.text:=conmemo.Text+s[i]
+    else conmemo.Text:=conmemo.Text+SEnter;
     inc(i);
   end;
 end;
+
 procedure console_clear(conmemo:TMemo;cl:TConsoleClear);
 var tmptxt:string;
     i:integer;
@@ -160,6 +165,7 @@ end;
 procedure TServer.start();
 begin
   if hoc = sv_NaN then    begin
+    host.Port:=Server_port;
     Host.Open;
     hoc:=sv_host;
   end
@@ -187,6 +193,7 @@ begin
     conmemo.top:=0;
     conmemo.Width:=600;
     conmemo.Height:=400;
+    conmemo.ScrollBars:=ssboth;       //na memo mnogo
     showed:=true;
   end
   else begin
@@ -209,18 +216,18 @@ begin
     else
   else
   if comm = com_host then begin
-        console_output(conMemo,Scom_host1);
+        if server.hoc = sv_NaN then console_output(conMemo,Scom_host1);
         Server.start();
-        console_output(conMemo,Scom_host2);
+        if server.hoc = sv_host then console_output(conMemo,Scom_host2);
   end
   else
   if comm = com_connect then begin
     if curind >= length(com) then error(SErrorConnectIp) // больше нету параметров
     else begin
       comm:=read_word(com,' ',curind);
-      console_output(conMemo,Scom_connect1);
+      if server.hoc = sv_NaN then console_output(conMemo,Scom_connect1);
       Server.connect(comm);
-      console_output(conMemo,Scom_connect2);
+      if server.hoc = sv_client then console_output(conMemo,Scom_connect2);
     end
   end
   else
@@ -233,6 +240,8 @@ begin
   end;
 end;
 procedure TConsole.OnKeyDown(key: Word; conMemo: TMemo);
+var
+  i: Integer;
 begin
 
   if (key=ord(key_open_con)) then
@@ -248,7 +257,10 @@ begin
     if chr(key) = '▼' then
       conmemo.Text:=conmemo.Text+'.'
     else
-    if chr(key) in console_letters then conmemo.Text:=conmemo.Text+chr(key);
+    if chr(key) in console_letters then begin
+      conmemo.Text:=conmemo.Text+chr(key);
+    end;
+    conmemo.Perform(WM_VScroll,SB_BOTTOM,0);     //в самый низ переходить
   end;
 end;
 
@@ -283,15 +295,26 @@ begin
     chat.chatPanel.Align:=TAlign.alRight;
     chat.chatPanel.Width:=250;
 
+    chat.inputpanel:=TPanel.Create(form);
+    chat.inputPanel.Parent:=form;
+    chat.inputPanel.Align:=TAlign.alRight;
+    chat.inputPanel.Width:=250;
+
     Chat.chatMemo:=Tmemo.Create(chat.chatPanel);
     chat.chatMemo.Parent:=chat.chatPanel;
     chat.chatMemo.ReadOnly:=true;
     chat.chatMemo.HideSelection:=true;
     chat.chatMemo.Height:=form.Height-75;
-    chat.chatMemo.Align:=altop;
+    chat.chatMemo.Align:=alclient;
     chat.chatMemo.ScrollBars:=ssboth;
 
     chat.chatSplit:=TSplitter.Create(form);
+    chat.chatSplit.Parent:=Form;
+    chat.chatSplit.Align:=alright;
+
+    chat.chatSplit2:=TSplitter.Create(chat.chatPanel);
+    chat.chatSplit2.Parent:=chat.chatPanel;
+    chat.chatSplit2.Align:=albottom;
 
   end;
 
