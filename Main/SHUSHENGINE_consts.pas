@@ -17,21 +17,26 @@ const
   SErrorConnectInfo = 'Вы не присоеденены к серверу!';
   SErrorConnectal = 'Вы уже присоеденены к серверу!';       //already
   SErrorConnectalh = 'Вы уже являетесь хостом! Остановите сервер!';       //host
+  SErrorHostSend  = 'Вы хост и не можете послать себе данные, или вы еще не подключились к серверу!';
 
   com_help = 'HELP';
   com_host = 'HOST';
   com_connect = 'CONNECT';
   com_clear = 'CLEAR';
   com_server_info = 'S_INFO';
+  com_send_to_serv = 'SEND_TO_HOST';
 
   def_SSeparator = '|';
   ds = def_SSeparator;  //тоже самое
 
-  Scom_Help = ds+ds+'--==THE HELP==--'+ds+ds+'Hello!'+ds+'No help for you'+ds+'NYEHEHEHE'+ds+ds+'--==THE HELP ENDING==--'+ds+ds;
-  Scom_Host1 = ds+'Сервер запускается...'+ds+ds;
-  Scom_Host2 = ds+'Сервер запущен'+ds+ds;
-  Scom_connect1 = ds+'Подключаемся к серверу...'+ds+ds;
-  Scom_connect2 = ds+'Сервер запущен'+ds+ds;
+  dst1 = '(\>>>';
+  dst2 = '<<</)';
+
+  Scom_Help = ds+ds+'--==THE HELP==--'+ds+ds+'Hello!'+ds+'No help for you'+ds+'NYEHEHEHE'+ds+ds+'--==THE HELP==--'+ds+ds;
+  Scom_Host1 = ds+'Сервер запускается...'+ds;
+  Scom_Host2 = ds+'Сервер запущен'+ds;
+  Scom_connect1 = ds+'Подключаемся к серверу...'+ds;
+  Scom_connect2 = ds+'Вы подключены к серверу'+ds;
   Scom_ServerInfo = ds+'Информация о запущенном сервере:'+ds+ds;
 
 
@@ -53,7 +58,7 @@ const
 
   key_open_con = 'À';
 
-  console_letters = ['A'..'Z','0','1'..'9',' ','_'];
+  console_letters = ['A'..'Z','0','1'..'9',' ','_','.'];
 
 
 

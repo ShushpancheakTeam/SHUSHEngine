@@ -140,14 +140,29 @@ var tmptxt:string;
 begin
   tmptxt:=string(conmemo.Text);
   if cl = cl_lline then begin
-    while tmptxt[length(tmptxt)] <> #10 do  begin
-      tmptxt:=tmptxt.Remove(length(tmptxt)-1);
+    while tmptxt[length(tmptxt)-length(dst2)] <> dst1[length(dst1)] do  begin
+      tmptxt:=tmptxt.Remove(length(tmptxt)-length(dst2)-1,1);
     end;
     conmemo.Text:=tmptxt;
   end;
-  if cl = cl_all then conmemo.lines.Clear;
+  if cl = cl_all then begin
+    conmemo.lines.Clear;
+    conmemo.Text:=dst1+dst2;
+  end;
   if cl = cl_char then begin
-    if tmptxt[length(tmptxt)] <> #10 then conmemo.text:=tmptxt.Remove(length(tmptxt)-1);     //за строку не выходить
+    if tmptxt[length(tmptxt)-length(dst2)] <> dst1[length(dst1)] then conmemo.text:=tmptxt.Remove(length(tmptxt)-length(dst2)-1,1);     //за строку не выходить
+  end;
+end;
+
+function posoflastline(s:string):integer;
+var
+  g:integer;
+begin
+  g:=1;
+  result:=1;
+  while g <> length(s) do begin
+    if s[g] = #10 then result:=g;
+    inc(g);
   end;
 end;
 
@@ -187,6 +202,7 @@ end;
 
 
 procedure TConsole.show(conMemo:TMemo);
+var tmptxt:string;
 begin
   if not showed then begin
     conmemo.Left:=10;
@@ -194,6 +210,9 @@ begin
     conmemo.Width:=600;
     conmemo.Height:=400;
     conmemo.ScrollBars:=ssboth;       //na memo mnogo
+    tmptxt:=conmemo.Text;
+    if tmptxt[length(tmptxt)] = #10 then
+      conmemo.Text:=conmemo.Text+dst1+dst2;
     showed:=true;
   end
   else begin
@@ -208,23 +227,23 @@ procedure TConsole.read_command(com: string;conMemo:TMemo);
 var curind:integer;
 var comm:string;
 begin
-  curind:=1;
+  curind:=length(dst1)+1;
   comm:=read_word(com,' ',curind);
   curind:=length(comm)+2; //вместе с /|\ верхним
+  if comm[length(comm)] = dst2[length(dst2)] then comm:=comm.Remove(length(comm)-length(dst2));
   if comm = com_help then                    //case nelzya
-    if curind >= length(com) then console_output(conMemo,Scom_help) // больше нету параметров
-    else
+    console_output(conMemo,Scom_help) // больше нету параметроb
   else
   if comm = com_host then begin
-        if server.hoc = sv_NaN then console_output(conMemo,Scom_host1);
-        Server.start();
-        if server.hoc = sv_host then console_output(conMemo,Scom_host2);
+    if server.hoc = sv_NaN then console_output(conMemo,Scom_host1);
+    Server.start();
+    if server.hoc = sv_host then console_output(conMemo,Scom_host2);
   end
   else
   if comm = com_connect then begin
-    if curind >= length(com) then error(SErrorConnectIp) // больше нету параметров
+    if com[curind] = dst2[1] then error(SErrorConnectIp) // больше нету параметров
     else begin
-      comm:=read_word(com,' ',curind);
+      comm:=read_word(com,dst2[1],curind);
       if server.hoc = sv_NaN then console_output(conMemo,Scom_connect1);
       Server.connect(comm);
       if server.hoc = sv_client then console_output(conMemo,Scom_connect2);
@@ -234,14 +253,22 @@ begin
   if comm = com_clear then begin
     console_clear(conmemo,cl_all);
   end
+  else if comm = com_send_to_serv then begin
+    if server.hoc = sv_Client then begin
+      comm:=read_word(com,' ',curind);
+      client.Socket.SendText(comm);
+    end
+    else error(SErrorHostSend);
+  end
   else begin
     error(SErrorCommand);
     console_clear(conmemo,cl_lline);
   end;
+  conmemo.Text:=conmemo.Text+SEnter+dst1+dst2;
 end;
 procedure TConsole.OnKeyDown(key: Word; conMemo: TMemo);
 var
-  i: Integer;
+  tmptxt,tmptxt1:string;
 begin
 
   if (key=ord(key_open_con)) then
@@ -254,11 +281,28 @@ begin
     if key = ord('') then//backspace
       console_clear(conmemo,cl_char)
     else
-    if chr(key) = '▼' then
-      conmemo.Text:=conmemo.Text+'.'
+    if key = 190 then begin
+      tmptxt:=conmemo.text;
+      tmptxt1:=tmptxt;
+      delete(tmptxt,posoflastline(tmptxt),255);
+      tmptxt:=tmptxt+read_word(tmptxt1,dst2[1],posoflastline(tmptxt1));
+      conmemo.Text:=tmptxt+'.'+dst2;
+    end
+    else
+    if key = 189 then begin
+      tmptxt:=conmemo.text;
+      tmptxt1:=tmptxt;
+      delete(tmptxt,posoflastline(tmptxt),255);
+      tmptxt:=tmptxt+read_word(tmptxt1,dst2[1],posoflastline(tmptxt1));
+      conmemo.Text:=tmptxt+'_'+dst2;
+    end
     else
     if chr(key) in console_letters then begin
-      conmemo.Text:=conmemo.Text+chr(key);
+      tmptxt:=conmemo.text;
+      tmptxt1:=tmptxt;
+      delete(tmptxt,posoflastline(tmptxt),255);
+      tmptxt:=tmptxt+read_word(tmptxt1,dst2[1],posoflastline(tmptxt1));
+      conmemo.Text:=tmptxt+chr(key)+dst2;
     end;
     conmemo.Perform(WM_VScroll,SB_BOTTOM,0);     //в самый низ переходить
   end;
