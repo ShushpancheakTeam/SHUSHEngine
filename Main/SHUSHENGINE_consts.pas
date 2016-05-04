@@ -54,6 +54,8 @@ const
   Def_camera_width = 100;
   Def_camera_height = 100;
 
+  def_input_clr = clwhite;
+
   Def_flags_size = 10;
 
   key_open_con = 'À';

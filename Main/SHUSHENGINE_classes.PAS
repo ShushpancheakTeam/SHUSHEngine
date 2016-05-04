@@ -91,6 +91,8 @@ type
       chatPanel:Tpanel;
       inputPanel:TPAnel;
       input:TEdit;
+      procedure read_command();
+      procedure onkeydown(sender:TObject;key:word;shift:TShiftstate);
   end;
 
 var camera_x,camera_y:integer;
@@ -341,8 +343,25 @@ begin
 
     chat.inputpanel:=TPanel.Create(form);
     chat.inputPanel.Parent:=form;
-    chat.inputPanel.Align:=TAlign.alRight;
+    chat.inputPanel.Align:=TAlign.alBottom;
     chat.inputPanel.Width:=250;
+    chat.inputPanel.BevelEdges:=[beTop,bebottom];
+    chat.inputPanel.BevelKind:=TBevelkind.bkTile;
+
+    chat.input:=tedit.Create(chat.inputPanel);
+    chat.input.Parent:=chat.inputPanel;
+
+    chat.input.Width:=chat.inputPanel.Width - 100;
+
+    chat.inputPanel.Height:=chat.input.Height+10;
+
+    chat.input.Color:=def_input_clr;
+
+    chat.input.Anchors:=[akBottom,akleft,aktop,akright];
+
+    chat.chatSplit:=TSplitter.Create(form);
+    chat.chatSplit.Parent:=Form;
+    chat.chatSplit.Align:=alright;
 
     Chat.chatMemo:=Tmemo.Create(chat.chatPanel);
     chat.chatMemo.Parent:=chat.chatPanel;
@@ -352,13 +371,7 @@ begin
     chat.chatMemo.Align:=alclient;
     chat.chatMemo.ScrollBars:=ssboth;
 
-    chat.chatSplit:=TSplitter.Create(form);
-    chat.chatSplit.Parent:=Form;
-    chat.chatSplit.Align:=alright;
-
-    chat.chatSplit2:=TSplitter.Create(chat.chatPanel);
-    chat.chatSplit2.Parent:=chat.chatPanel;
-    chat.chatSplit2.Align:=albottom;
+    chat.chatMemo.OnKeyDown:=chat.onkeydown;
 
   end;
 
@@ -381,7 +394,7 @@ procedure TAudioControl.Init(FormHandle:HWND);       //Нужно ввести f
 begin
 	if (HIWORD(BASS_GetVersion) <> BASSVERSION) then
 	begin
-		MessageBox(0,SError_BASS1,0,MB_ICONERROR);
+		MessageBox(0,SError_BASS1,NIL,MB_ICONERROR);
 		Halt;
 	end;
 
