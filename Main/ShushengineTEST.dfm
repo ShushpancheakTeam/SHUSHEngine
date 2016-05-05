@@ -51,6 +51,7 @@ object Form1: TForm1
     Active = False
     Port = 0
     ServerType = stNonBlocking
+    OnClientWrite = ServerSocket1ClientWrite
     Left = 728
     Top = 88
   end

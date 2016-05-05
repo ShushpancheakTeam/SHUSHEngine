@@ -18,6 +18,8 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure conMemoKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure ServerSocket1ClientWrite(Sender: TObject;
+      Socket: TCustomWinSocket);
   private
     { Private declarations }
   public
@@ -38,19 +40,23 @@ begin                                                                        ///
   testobject.Sprite.img.Transparent:=true;                                   ///
 end;                                                                         ///
 procedure Initialization_shush();                                            ///
-begin                                                                        ///
+begin                                         ///
   testobject.Sprite.img:=TImage.Create(Form1);                               ///
   shush1(testobject.Sprite.img);
 
   Form:=Form1;                                       ///
   HOST:=form1.serversocket1;
   CLIENT:=form1.ClientSocket1;
+
+  console:=TConsole.Create;
+
+  console.conmemo:=form1.conmemo;
 end;                                                                         ///
 ///////////////////////////////////////SHUSH_STUFF//////////////////////////////
 procedure TForm1.conMemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  GAme_control.console.OnKeyDown(key,conMemo);
+  console.OnKeyDown(key);
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -63,7 +69,6 @@ begin
 
   Initialization_shush();
 
-
   tmpflags:=Tflags.create;
 
   tmpflags.size:=Def_flags_size;
@@ -74,13 +79,23 @@ begin
   Game_control.Audio_Control.init(Form1.Handle);
 
 
+
+  
+
+
   Timer1.Enabled:=true;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  Game_control.onkeydown(key,conMemo);
+  Game_control.onkeydown(key);
+end;
+
+procedure TForm1.ServerSocket1ClientWrite(Sender: TObject;
+  Socket: TCustomWinSocket);
+begin
+  Server.onrecieveFromClient(socket);
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);

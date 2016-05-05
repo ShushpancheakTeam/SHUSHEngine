@@ -56,9 +56,12 @@ type
 
   TConsole = class
     showed:boolean;
-    procedure show(conMemo:TMemo);
-    procedure OnKeyDown(key:word;conMemo:TMemo);
-    procedure read_command(com:string;conMemo:TMemo);
+    conmemo:TMemo;
+    procedure show();
+    procedure OnKeyDown(key:word);
+    procedure read_command(com:string);
+    procedure output(s:string);
+    procedure clear(cl:TConsoleClear);
   end;
 
   TGameControl = class
@@ -67,13 +70,12 @@ type
       Audio_Control:TAudioControl;
       World_width:integer;
       World_height:integer;
-      console:TConsole;
       flags: Tflags;
     procedure pause(ms:integer); //пауза на n ms
     procedure Init(flg:TFlags);
     procedure SHowLogo;
     procedure set_camera_xy(nx,ny:integer);
-    procedure onKeyDown(key:word;conMemo:TMemo);
+    procedure onKeyDown(key:word);
   end;
   TServer = class
     public
@@ -82,6 +84,8 @@ type
     procedure stop_host();
     procedure stop_connection();
     procedure connect(ip:string);
+
+    procedure OnRecieveFromClient(sock:TCustomWinSocket);
   end;
   TChat = class
     public
@@ -91,8 +95,8 @@ type
       chatPanel:Tpanel;
       inputPanel:TPAnel;
       input:TEdit;
-      procedure read_command();
-      procedure onkeydown(sender:TObject;key:word;shift:TShiftstate);
+      //procedure read_command();
+      //procedure onkeydown(sender:TObject;key:word;shift:TShiftstate);
   end;
 
 var camera_x,camera_y:integer;
@@ -102,6 +106,7 @@ var camera_x,camera_y:integer;
     client:TClientSocket;
     Chat:TChat;
     Form:TWinControl;
+    console:TConsole;
 
 
 
@@ -123,39 +128,6 @@ begin
     inc(i);
   end;
 end;
-
-procedure console_output(conMemo:TMemo;s:String);
-var i:integer;
-begin
-  i:=1;
-
-  while i <= length(s) do  begin
-    if s[i] <> def_SSeparator then conmemo.text:=conmemo.Text+s[i]
-    else conmemo.Text:=conmemo.Text+SEnter;
-    inc(i);
-  end;
-end;
-
-procedure console_clear(conmemo:TMemo;cl:TConsoleClear);
-var tmptxt:string;
-    i:integer;
-begin
-  tmptxt:=string(conmemo.Text);
-  if cl = cl_lline then begin
-    while tmptxt[length(tmptxt)-length(dst2)] <> dst1[length(dst1)] do  begin
-      tmptxt:=tmptxt.Remove(length(tmptxt)-length(dst2)-1,1);
-    end;
-    conmemo.Text:=tmptxt;
-  end;
-  if cl = cl_all then begin
-    conmemo.lines.Clear;
-    conmemo.Text:=dst1+dst2;
-  end;
-  if cl = cl_char then begin
-    if tmptxt[length(tmptxt)-length(dst2)] <> dst1[length(dst1)] then conmemo.text:=tmptxt.Remove(length(tmptxt)-length(dst2)-1,1);     //за строку не выходить
-  end;
-end;
-
 function posoflastline(s:string):integer;
 var
   g:integer;
@@ -201,9 +173,45 @@ begin
   else error(SErrorConnectal);
 end;
 
+procedure TServer.OnRecieveFromClient(sock:TCustomWinSocket);
+begin
+
+end;
+
+procedure Tconsole.output(s:String);
+var i:integer;
+begin
+  i:=1;
+
+  while i <= length(s) do  begin
+    if s[i] <> def_SSeparator then conmemo.text:=conmemo.Text+s[i]
+    else conmemo.Text:=conmemo.Text+SEnter;
+    inc(i);
+  end;
+end;
+
+procedure Tconsole.clear(cl:TConsoleClear);
+var tmptxt:string;
+    i:integer;
+begin
+  tmptxt:=string(conmemo.Text);
+  if cl = cl_lline then begin
+    while tmptxt[length(tmptxt)-length(dst2)] <> dst1[length(dst1)] do  begin
+      tmptxt:=tmptxt.Remove(length(tmptxt)-length(dst2)-1,1);
+    end;
+    conmemo.Text:=tmptxt;
+  end;
+  if cl = cl_all then begin
+    conmemo.lines.Clear;
+    conmemo.Text:=dst1+dst2;
+  end;
+  if cl = cl_char then begin
+    if tmptxt[length(tmptxt)-length(dst2)] <> dst1[length(dst1)] then conmemo.text:=tmptxt.Remove(length(tmptxt)-length(dst2)-1,1);     //за строку не выходить
+  end;
+end;
 
 
-procedure TConsole.show(conMemo:TMemo);
+procedure TConsole.show();
 var tmptxt:string;
 begin
   if not showed then begin
@@ -225,7 +233,7 @@ begin
     showed:=false;
   end;
 end;
-procedure TConsole.read_command(com: string;conMemo:TMemo);
+procedure TConsole.read_command(com: string);
 var curind:integer;
 var comm:string;
 begin
@@ -234,26 +242,26 @@ begin
   curind:=length(comm)+2; //вместе с /|\ верхним
   if comm[length(comm)] = dst2[length(dst2)] then comm:=comm.Remove(length(comm)-length(dst2));
   if comm = com_help then                    //case nelzya
-    console_output(conMemo,Scom_help) // больше нету параметроb
+    output(Scom_help) // больше нету параметроb
   else
   if comm = com_host then begin
-    if server.hoc = sv_NaN then console_output(conMemo,Scom_host1);
+    if server.hoc = sv_NaN then output(Scom_host1);
     Server.start();
-    if server.hoc = sv_host then console_output(conMemo,Scom_host2);
+    if server.hoc = sv_host then output(Scom_host2);
   end
   else
   if comm = com_connect then begin
     if com[curind] = dst2[1] then error(SErrorConnectIp) // больше нету параметров
     else begin
       comm:=read_word(com,dst2[1],curind);
-      if server.hoc = sv_NaN then console_output(conMemo,Scom_connect1);
+      if server.hoc = sv_NaN then output(Scom_connect1);
       Server.connect(comm);
-      if server.hoc = sv_client then console_output(conMemo,Scom_connect2);
+      if server.hoc = sv_client then output(Scom_connect2);
     end
   end
   else
   if comm = com_clear then begin
-    console_clear(conmemo,cl_all);
+    clear(cl_all);
   end
   else if comm = com_send_to_serv then begin
     if server.hoc = sv_Client then begin
@@ -264,24 +272,24 @@ begin
   end
   else begin
     error(SErrorCommand);
-    console_clear(conmemo,cl_lline);
+    clear(cl_lline);
   end;
   conmemo.Text:=conmemo.Text+SEnter+dst1+dst2;
 end;
-procedure TConsole.OnKeyDown(key: Word; conMemo: TMemo);
+procedure TConsole.OnKeyDown(key: Word);
 var
   tmptxt,tmptxt1:string;
 begin
 
   if (key=ord(key_open_con)) then
-      show(conMemo) else
+      show() else
   if showed then begin
     if key = 13 then begin
-      read_command(conmemo.Lines[conmemo.Lines.Count-1],conMemo);
+      read_command(conmemo.Lines[conmemo.Lines.Count-1]);
     end
     else
     if key = ord('') then//backspace
-      console_clear(conmemo,cl_char)
+      clear(cl_char)
     else
     if key = 190 then begin
       tmptxt:=conmemo.text;
@@ -371,11 +379,9 @@ begin
     chat.chatMemo.Align:=alclient;
     chat.chatMemo.ScrollBars:=ssboth;
 
-    chat.chatMemo.OnKeyDown:=chat.onkeydown;
-
   end;
 
-  console:=TConsole.Create;
+  //console:=TConsole.Create; до инита
   console.showed:=false;
 
   Server:=TServer.Create;
@@ -519,10 +525,10 @@ begin
   y:=ny;
   set_wxy(x,y);
 end;
-procedure TGameCOntrol.onKeyDown(key:word;conMemo:TMemo);
+procedure TGameCOntrol.onKeyDown(key:word);
 begin
   if (key=ord(key_open_con)) then
-    console.show(conMemo);
+    console.show();
 
 end;
 
