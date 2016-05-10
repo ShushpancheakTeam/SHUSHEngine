@@ -24,7 +24,9 @@ type
     width,height:integer;
     img:TImage;
     active_gif:integer;
+    //какой гиф вставить на какое направление в каком state
     procedure assign_gif(path:string;num:integer);
+    //default params
     procedure set_default();
 
 
@@ -36,9 +38,13 @@ type
     allowed_directions: set of up..up_left;
     direction: TDirection;
     Sprite:TSprite;
+    //def
     procedure Set_default();
+    //
     procedure Set_xy(nx,ny:integer);
+    //x y относительно камеры
     procedure Set_wxy(nx,ny:integer);
+    //
     procedure draw_sprite();
   end;
 
@@ -51,16 +57,24 @@ type
     public
       var
         AudioStream:Array[0..9] of HStream; //с нуля
+      //initialization
       procedure Init(FormHandle:HWND);
   end;
 
   TConsole = class
     showed:boolean;
     conmemo:TMemo;
+    //
     procedure show();
+    //
     procedure OnKeyDown(key:word);
+    //
     procedure read_command(com:string);
+    //
     procedure output(s:string);
+    //
+    procedure output_info(s:string);
+    //
     procedure clear(cl:TConsoleClear);
   end;
 
@@ -71,10 +85,15 @@ type
       World_width:integer;
       World_height:integer;
       flags: Tflags;
-    procedure pause(ms:integer); //пауза на n ms
+    //пауза на n ms
+    procedure pause(ms:integer);
+    //initialization
     procedure Init(flg:TFlags);
+    //
     procedure SHowLogo;
+    //
     procedure set_camera_xy(nx,ny:integer);
+    //
     procedure onKeyDown(key:word);
   end;
   TServer = class
@@ -84,7 +103,6 @@ type
     procedure stop_host();
     procedure stop_connection();
     procedure connect(ip:string);
-
     procedure OnRecieveFromClient(sock:TCustomWinSocket);
   end;
   TChat = class
@@ -175,19 +193,33 @@ end;
 
 procedure TServer.OnRecieveFromClient(sock:TCustomWinSocket);
 begin
-
+  console.output_info(Srecieve_client+inttostr(sock.sockethandle)+':'+sock.ReceiveText);
 end;
 
 procedure Tconsole.output(s:String);
 var i:integer;
 begin
   i:=1;
-
   while i <= length(s) do  begin
     if s[i] <> def_SSeparator then conmemo.text:=conmemo.Text+s[i]
     else conmemo.Text:=conmemo.Text+SEnter;
     inc(i);
   end;
+end;
+procedure TConsole.output_info(s:string);   //вывод до введения команды (для событий типа присоединении клиента)
+var i:integer;
+    tmptxt:string;
+begin
+  tmptxt:=conmemo.text;
+  tmptxt.Remove(posoflastline(tmptxt)-1);
+  conmemo.text:=tmptxt;
+  i:=1;
+  while i <= length(s) do  begin
+    if s[i] <> def_SSeparator then conmemo.text:=conmemo.Text+s[i]
+    else conmemo.Text:=conmemo.Text+SEnter;
+    inc(i);
+  end;
+  conmemo.Text:=conmemo.Text+SEnter+dst1+dst2;
 end;
 
 procedure Tconsole.clear(cl:TConsoleClear);
@@ -239,7 +271,8 @@ var comm:string;
 begin
   curind:=length(dst1)+1;
   comm:=read_word(com,' ',curind);
-  curind:=length(comm)+2; //вместе с /|\ верхним
+  //+3 потому что там он был на один меньше, это уже +2, а потом стоп чар
+  curind:=curind+3+length(dst1); //вместе с /|\ верхним
   if comm[length(comm)] = dst2[length(dst2)] then comm:=comm.Remove(length(comm)-length(dst2));
   if comm = com_help then                    //case nelzya
     output(Scom_help) // больше нету параметроb

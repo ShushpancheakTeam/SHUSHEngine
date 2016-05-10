@@ -19,6 +19,8 @@ const
   SErrorConnectalh = 'Вы уже являетесь хостом! Остановите сервер!';       //host
   SErrorHostSend  = 'Вы хост и не можете послать себе данные, или вы еще не подключились к серверу!';
 
+  Srecieve_client = '|Получены данные от клиента ';
+
   com_help = 'HELP';
   com_host = 'HOST';
   com_connect = 'CONNECT';
@@ -29,8 +31,8 @@ const
   def_SSeparator = '|';
   ds = def_SSeparator;  //тоже самое
 
-  dst1 = '(\>>>';
-  dst2 = '<<</)';
+  dst1 = '[\>>>';
+  dst2 = '<<</]';
 
   Scom_Help = ds+ds+'--==THE HELP==--'+ds+ds+'Hello!'+ds+'No help for you'+ds+'NYEHEHEHE'+ds+ds+'--==THE HELP==--'+ds+ds;
   Scom_Host1 = ds+'Сервер запускается...'+ds;

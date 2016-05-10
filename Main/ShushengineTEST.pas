@@ -18,7 +18,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure conMemoKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure ServerSocket1ClientWrite(Sender: TObject;
+    procedure ServerSocket1ClientRead(Sender: TObject;
       Socket: TCustomWinSocket);
   private
     { Private declarations }
@@ -92,7 +92,7 @@ begin
   Game_control.onkeydown(key);
 end;
 
-procedure TForm1.ServerSocket1ClientWrite(Sender: TObject;
+procedure TForm1.ServerSocket1ClientRead(Sender: TObject;
   Socket: TCustomWinSocket);
 begin
   Server.onrecieveFromClient(socket);
